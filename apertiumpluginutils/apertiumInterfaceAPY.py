@@ -36,6 +36,10 @@ except:
 	import HTMLParser
 import sys
 import json
+import socket
+
+## Timeout value for requests
+timeout = 8
 
 ## Python version running the module
 pyVersion = sys.version_info[0]
@@ -187,7 +191,7 @@ def getAllPairs(index=-1):
 		pairs = []
 
 		try:
-			request = urllib2.urlopen(address+'/listPairs')
+			request = urllib2.urlopen(address+'/listPairs', timeout=timeout)
 		except urllib2.URLError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
@@ -196,6 +200,11 @@ def getAllPairs(index=-1):
 		except urllib2.HTTPError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
+			else:
+				continue
+		except socket.timeout:
+			if(it == last):
+				return {'ok':False, 'errorMsg':'Request timed out'.encode('utf-8')}
 			else:
 				continue
 
@@ -245,7 +254,7 @@ def getPairsBySource(source, index=-1):
 				pass
 
 		try:
-			request = urllib2.urlopen(address+'/listPairs')
+			request = urllib2.urlopen(address+'/listPairs', timeout=timeout)
 		except urllib2.URLError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
@@ -254,6 +263,11 @@ def getPairsBySource(source, index=-1):
 		except urllib2.HTTPError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
+			else:
+				continue
+		except socket.timeout:
+			if(it == last):
+				return {'ok':False, 'errorMsg':'Request timed out'.encode('utf-8')}
 			else:
 				continue
 
@@ -304,7 +318,7 @@ def getPairsByTarget(target, index=-1):
 				pass
 
 		try:
-			request = urllib2.urlopen(address+'/listPairs')
+			request = urllib2.urlopen(address+'/listPairs', timeout=timeout)
 		except urllib2.URLError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
@@ -313,6 +327,11 @@ def getPairsByTarget(target, index=-1):
 		except urllib2.HTTPError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
+			else:
+				continue
+		except socket.timeout:
+			if(it == last):
+				return {'ok':False, 'errorMsg':'Request timed out'.encode('utf-8')}
 			else:
 				continue
 
@@ -367,7 +386,7 @@ def pairExists(source, target, index=-1):
 				pass
 
 		try:
-			request = urllib2.urlopen(address+'/listPairs')
+			request = urllib2.urlopen(address+'/listPairs', timeout=timeout)
 		except urllib2.URLError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
@@ -376,6 +395,11 @@ def pairExists(source, target, index=-1):
 		except urllib2.HTTPError:
 			if(it == last):
 				return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
+			else:
+				continue
+		except socket.timeout:
+			if(it == last):
+				return {'ok':False, 'errorMsg':'Request timed out'.encode('utf-8')}
 			else:
 				continue
 
@@ -441,7 +465,7 @@ def translate(text, source, target, index=-1):
 			if(result['result']):
 
 				try:
-					request = urllib2.urlopen(address+'/translate?q='+parse.quote_plus(text)+'&langpair='+source+'|'+target)
+					request = urllib2.urlopen(address+'/translate?q='+parse.quote_plus(text)+'&langpair='+source+'|'+target, timeout=timeout)
 				except urllib2.URLError:
 					if(it == last):
 						return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
@@ -450,6 +474,11 @@ def translate(text, source, target, index=-1):
 				except urllib2.HTTPError:
 					if(it == last):
 						return {'ok':False, 'errorMsg':'Error on connection'.encode('utf-8')}
+					else:
+						continue
+				except socket.timeout:
+					if(it == last):
+						return {'ok':False, 'errorMsg':'Request timed out'.encode('utf-8')}
 					else:
 						continue
 
