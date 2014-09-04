@@ -1,54 +1,69 @@
+#
+# Apertium Plugin Utils.
+#
+# Copyright (C) 2014 Sergio Balbuena <sbalbp@gmail.com>.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
 """
-Apertium Plugin Utils.
+:Synopsis: Manages the files and dictionary used with the plugin
 
-Copyright (C) 2014 Sergio Balbuena <sbalbp@gmail.com>.
+This module makes use of a dictionary to store the plugin preferences for the user.
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 3 of the
-License, or (at your option) any later version.
+The dictionary has the following fields:
 
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
+- **'apyAddress'** : 'address to make requests to'
+- **'incoming'** : { *user1, user2, ...., userN* }
+- **'outgoing'**: { *user1, user2, ...., userN* }
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
+The structure for each *userN*:
+
+- **name** :
+
+	**'source'** : *source_language_str*
+
+	**'target'** : *target_language_str*
 """
-
-#!/usr/bin/env python
-
-## @file apertiumFiles.py
-# Manages the files and dictionary used with the plugin
 
 import pickle
 import sys
 import os.path
 
-## Dictionary which contains the user-language_pair bindings
-#
-# The dictionary has the following structure:<br>
-# { <b>'apyAddress'</b> : 'address to make requests to' , <b>'incoming'</b> : { <var>user1, user2, ...., userN</var> } , <b>'outgoing'</b>: { <var>user1, user2, ...., userN</var> } }<br>
-# The structure for each <var>userN</var>:<br>
-# { <b>'name'</b> : { <b>'source'</b> : <var>source_language_str</var> , <b>'target'</b> : <var>target_language_str</var> } }
 dictionary = None
 
-## Name of the file where the dictionary will be stored
 fileName = 'apertium_plugin_pairs_preferences.pkl'
 
-## Sets the name for the file where the dictionary will be stored
-#
-# @param newFileName Name of the file
 def setFile(newFileName):
+	"""
+	Sets the name for the file where the dictionary will be stored.
+
+    :param newFileName: The name of the file.
+    :type newFileName: str
+    """
 	global fileName
 
 	fileName = newFileName
 
-## Creates a new empty dictionary and stores it in a file
-#
-# If the file to store the dictionary in does not exist, it is created
 def createDictionary():
+	"""
+	Creates a new empty dictionary and stores it in a file.
+
+    .. note::
+
+       If the file to store the dictionary in does not exist, it is created.
+    """
 	global dictionary
 
 	dictionary = {'version':sys.version_info[0], 'apyAddress':['http://localhost:2737'.encode('utf-8')], 'incoming':{}, 'outgoing':{}}
@@ -58,11 +73,16 @@ def createDictionary():
 	pickle.dump(dictionary, file1)
 	file1.close()
 
-## Reads the dictionary from a file
-#
-# If the file to store the dictionary in does not exist, a new file and a dictionary are created with createDictionary()
-# @return The dictionary
 def read():
+	"""
+	Reads the dictionary from a file.
+
+    .. note::
+
+       If the file to store the dictionary in does not exist, a new file and a dictionary are created with :func:`createDictionary`.
+
+    :returns: The dictionary.
+    """
 	global dictionary
 
 	if(not os.path.isfile(fileName)):
@@ -75,8 +95,10 @@ def read():
 
 	return dictionary
 
-## Saves the current state of the dictionary to a file
 def save():
+	"""
+	Saves the current state of the dictionary to a file.
+    """
 	global dictionary
 
 	file1 = open(fileName, 'wb')
@@ -84,11 +106,14 @@ def save():
 	pickle.dump(dictionary, file1)
 	file1.close()
 
-## Retrieves the value pointed by a key in the dictionary
-#
-# @param key Entry in the dictionary to look for
-# @return Value pointed by key if it exists, or None otherwise
 def getKey(key):
+	"""
+	Retrieves the value pointed by a key in the dictionary.
+
+    :param key: Entry in the dictionary to look for.
+    :type key: str
+    :returns: Value pointed by key if it exists, or None otherwise.
+    """
 	global dictionary
 
 	if(dictionary is None):
@@ -102,11 +127,14 @@ def getKey(key):
 	else:
 		return None
 
-## Sets the value pointed by a key in the dictionary
-#
-# @param key Entry in the dictionary to set
-# @param value Value to be assigned to the key
 def setKey(key, value):
+	"""
+	Sets the value pointed by a key in the dictionary.
+
+    :param key: Entry in the dictionary to set.
+    :type key: str
+    :param value: Value to be assigned to the key.
+    """
 	global dictionary
 
 	if(dictionary is None):
@@ -114,14 +142,20 @@ def setKey(key, value):
 
 	dictionary[key] = value
 
-## Sets the language pair to be associated with an user in a direction
-#
-# @param direction String containing 'incoming' or 'outgoing'
-# @param user User the language pair will be associated to
-# @param source Source language of the pair
-# @param target Source language of the pair
-# @return True on success, or Flase otherwise
 def setLangPair(direction, user, source, target):
+	"""
+	Sets the language pair to be associated with an user in a direction.
+
+    :param direction: String containing 'incoming' or 'outgoing'.
+    :type direction: str
+    :param user: User the language pair will be associated to.
+    :type user: str
+    :param source: Source language of the pair.
+    :type direction: str
+    :param target: Target language of the pair.
+    :type direction: str
+    :returns: True on success, or False otherwise.
+    """
 	global dictionary
 
 	newDict = {}
@@ -134,12 +168,16 @@ def setLangPair(direction, user, source, target):
 	except:
 		return False
 
-## Removes the language pair associated with an user in a direction
-#
-# @param direction String containing 'incoming' or 'outgoing'
-# @param user User whose language pair binding is to be removed
-# @return True on success, or False otherwise
 def unsetLangPair(direction, user):
+	"""
+	Removes the language pair associated with an user in a direction.
+
+    :param direction: String containing 'incoming' or 'outgoing'.
+    :type direction: str
+    :param user: User whose language pair binding is to be removed.
+    :type user: str
+    :returns: True on success, or False otherwise.
+    """
 	global dictionary
 
 	if(direction in dictionary.keys() and user in dictionary[direction]):
@@ -148,10 +186,14 @@ def unsetLangPair(direction, user):
 	else:
 		return False
 
-## Retrieves the current dictionary
-#
-# @return The dictionary
 def getDictionary():
+	"""
+	Retrieves the current dictionary.
+
+    :param key: Entry in the dictionary to set.
+    :type key: str
+    :returns: The dictionary.
+    """
 	global dictionary
 
 	if(dictionary is None):
@@ -159,10 +201,12 @@ def getDictionary():
 
 	return dictionary
 
-## Overrides the current dictionary with a new one
-#
-# @param newDictionary Dictionary to replace the old one with
 def setDictionary(newDictionary):
+	"""
+	Overrides the current dictionary with a new one.
+
+    :param newDictionary: Dictionary to replace the old one with.
+    """
 	global dictionary
 
 	dictionary = newDictionary

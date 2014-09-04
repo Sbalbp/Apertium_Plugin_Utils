@@ -1,26 +1,25 @@
+#
+# Apertium Plugin Utils.
+#
+# Copyright (C) 2014 Sergio Balbuena <sbalbp@gmail.com>.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
 """
-Apertium Plugin Utils.
-
-Copyright (C) 2014 Sergio Balbuena <sbalbp@gmail.com>.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
+:Synopsis: Acts as an interface with an Apertium-APY
 """
-
-#!/usr/bin/env python
-
-## @file apertiumInterfaceAPY.py
-# Acts as an interface with an Apertium-APY
 
 try:
 	import urllib.parse as parse
@@ -38,24 +37,22 @@ import sys
 import json
 import socket
 
-## Timeout value for requests
 timeout = 8
 
-## Python version running the module
 pyVersion = sys.version_info[0]
 
-## Address of the Apertium-APY
 apyAddress = ['http://localhost:2737']
 
-## Parser that will unescape APY responses
 parser = HTMLParser.HTMLParser()
 
-## Checks whether an APY server is running in the given address or not
-#
-# @param address Address to be checked
-# @return True if there was a response from the server, False otherwise
 def checkAPY(address):
+	"""
+	Checks whether an APY server is running in the given address or not.
 
+    :param address: Address to be checked.
+    :type address: str
+    :returns: True if there was a response from the server, False otherwise.
+    """
 	if(pyVersion >= 3):
 		try:
 			address.decode('utf-8')
@@ -73,17 +70,22 @@ def checkAPY(address):
 
 	return True
 
-## Retrieves the length of the APY list
-#
-# @return The number of APYs currently in the list
 def getAPYListSize():
+	"""
+	Retrieves the length of the APY list.
+
+    :returns: The number of APYs currently in the list.
+    """
 	return len(apyAddress)
 
-## Retrieves an APY from the current APY list
-#
-# @param index Position of the APY to be retrieved from the list. 0 if omitted
-# @return A string with the current APY address on success, or None otherwise
 def getAPYAddress(index=0):
+	"""
+	Retrieves an APY from the current APY list.
+
+    :param index: Position of the APY to be retrieved from the list. 0 if omitted.
+    :type index: int
+    :returns: A string with the current APY address on success, or None otherwise.
+    """
 	if(len(apyAddress) <= index or index < 0):
 		return None
 	else:
@@ -92,15 +94,18 @@ def getAPYAddress(index=0):
 		else:
 			return apyAddress[index]
 
-
-## Adds a new address to the APY addresses list
-#
-# @param newAddress New address for the APY
-# @param newPort Port for the APY. None if no port is needed
-# @param order Position this address will take in the list. None (appends address) by default
-# @param force Forces the address to be set even if there was no response
-# @return The new address list if it was changed, or None otherwise
 def setAPYAddress(newAddress, newPort=None, order=None, force=False):
+	"""
+	Adds a new address to the APY addresses list.
+
+    :param newAddress: New address for the APY.
+    :type newAddress: str
+    :param order: Position this address will take in the list. None (appends address) by default.
+    :type order: int
+    :param force: Forces the address to be set even if there was no response.
+    :type force: boolean
+    :returns: The new address list if it was changed, or None otherwise.
+    """
 	global apyAddress
 
 	if(pyVersion >= 3):
@@ -127,11 +132,14 @@ def setAPYAddress(newAddress, newPort=None, order=None, force=False):
 	else:
 		return None
 
-## Removes an APY from the APY list
-#
-# @param index Index of the address to remove in the list
-# @return True on success or False otherwise
 def removeAPYAddress(index):
+	"""
+	Removes an APY from the APY list.
+
+    :param index: Index of the address to remove in the list.
+    :type index: int
+    :returns: True on success or False otherwise.
+    """
 	global apyAddress
 
 	if(index >= len(apyAddress)):
@@ -140,10 +148,12 @@ def removeAPYAddress(index):
 		apyAddress.pop(index)
 		return True
 
-## Retrieves the list of APY addresses
-#
-# @return The list of APY addresses
 def getAPYList():
+	"""
+	Retrieves the list of APY addresses.
+
+    :returns: The list of APY addresses.
+    """
 	addrList = []
 
 	for address in apyAddress:
@@ -154,11 +164,13 @@ def getAPYList():
 
 	return addrList
 
-## Sets a list of APY addresses as the address list
-#
-# @param newList List ocntaining the addresses to be added
-# @return The actual number of APY addresses added
 def setAPYList(newList):
+	"""
+	Sets a list of APY addresses as the address list.
+
+    :param newList: List containing the addresses to be added.
+    :returns: The actual number of APY addresses added.
+    """
 	global apyAddress
 
 	apyAddress = []
@@ -170,16 +182,26 @@ def setAPYList(newList):
 
 	return success
 
-## Retrieves a list with all the available language pairs
-#
-# @param index Optional integer indicating the position of the address in the list the request should be sent to. <br>
-# Defaults to -1. Used to keep the function from iterating through all the addresses
-# @return A dictionary with the following fields:<br>
-# <b>'ok':</b> True if the call was successful, False otherwise<br>
-# <b>'errorMsg':</b> String with the cause of the error. Only present if <b>'ok'</b> is False<br>
-# <b>'result':</b> List with the language pairs. Only present if <b>'ok'</b> is True<br>
-# Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively
 def getAllPairs(index=-1):
+	"""
+	Retrieves a list with all the available language pairs.
+
+    :param index: Optional integer indicating the position of the address in the list the request should be sent to. Defaults to -1. Used to keep the function from iterating through all the addresses.
+    :type index: int
+    :returns: A dictionary.
+
+    	The dictionary has the following fields:
+
+    	- **'ok'**: True if the call was successful, False otherwise
+
+    	- **'errorMsg':** String with the cause of the error. Only present if **'ok'** is False
+
+    	- **'result':** List with the language pairs. Only present if **'ok'** is True
+
+    .. note::
+
+       Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively.
+    """
 	if(index > -1 and index < len(apyAddress)):
 		apyList = [apyAddress[index]]
 		last = 0
@@ -226,17 +248,28 @@ def getAllPairs(index=-1):
 			else:
 				continue
 
-## Retrieves a list with all the available language pairs that share a common source language
-#
-# @param source String with the source language that the returned pairs must share
-# @param index Optional integer indicating the position of the address in the list the request should be sent to. <br>
-# Defaults to -1. Used to keep the function from iterating through all the addresses
-# @return A dictionary with the following fields:<br>
-# <b>'ok':</b> True if the call was successful, False otherwise<br>
-# <b>'errorMsg':</b> String with the cause of the error. Only present if <b>'ok'</b> is False<br>
-# <b>'result':</b> List with the language pairs. Only present if <b>'ok'</b> is True<br>
-# Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively
 def getPairsBySource(source, index=-1):
+	"""
+	Retrieves a list with all the available language pairs that share a common source language.
+
+    :param source: String with the source language that the returned pairs must share.
+    :type source: str
+    :param index: Optional integer indicating the position of the address in the list the request should be sent to. Defaults to -1. Used to keep the function from iterating through all the addresses.
+    :type index: int
+    :returns: A dictionary.
+
+    	The dictionary has the following fields:
+
+    	- **'ok'**: True if the call was successful, False otherwise
+
+    	- **'errorMsg':** String with the cause of the error. Only present if **'ok'** is False
+
+    	- **'result':** List with the language pairs. Only present if **'ok'** is True
+
+    .. note::
+
+       Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively.
+    """
 	if(index > -1 and index < len(apyAddress)):
 		apyList = [apyAddress[index]]
 		last = 0
@@ -290,17 +323,28 @@ def getPairsBySource(source, index=-1):
 			else:
 				continue
 
-## Retrieves a list with all the available language pairs that share a common target language
-#
-# @param target String with the target language that the returned pairs must share
-# @param index Optional integer indicating the position of the address in the list the request should be sent to. <br>
-# Defaults to -1. Used to keep the function from iterating through all the addresses
-# @return A dictionary with the following fields:<br>
-# <b>'ok':</b> True if the call was successful, False otherwise<br>
-# <b>'errorMsg':</b> String with the cause of the error. Only present if <b>'ok'</b> is False<br>
-# <b>'result':</b> List with the language pairs. Only present if <b>'ok'</b> is True<br>
-# Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively
 def getPairsByTarget(target, index=-1):
+	"""
+	Retrieves a list with all the available language pairs that share a common source language.
+
+    :param target: String with the target language that the returned pairs must share.
+    :type target: str
+    :param index: Optional integer indicating the position of the address in the list the request should be sent to. Defaults to -1. Used to keep the function from iterating through all the addresses.
+    :type index: int
+    :returns: A dictionary.
+
+    	The dictionary has the following fields:
+
+    	- **'ok'**: True if the call was successful, False otherwise
+
+    	- **'errorMsg':** String with the cause of the error. Only present if **'ok'** is False
+
+    	- **'result':** List with the language pairs. Only present if **'ok'** is True
+
+    .. note::
+
+       Each element of the result list is a list with two string elements: the source and the target languages of the pair, respectively.
+    """
 	if(index > -1 and index < len(apyAddress)):
 		apyList = [apyAddress[index]]
 		last = 0
@@ -354,17 +398,26 @@ def getPairsByTarget(target, index=-1):
 			else:
 				continue
 
-## Checks if a given language pair is available
-#
-# @param source String with the source language of the pair to be checked
-# @param target String with the target language of the pair to be checked
-# @param index Optional integer indicating the position of the address in the list the request should be sent to. <br>
-# Defaults to -1. Used to keep the function from iterating through all the addresses
-# @return A dictionary with the following fields:<br>
-# <b>'ok':</b> True if the call was successful, False otherwise<br>
-# <b>'errorMsg':</b> String with the cause of the error. Only present if <b>'ok'</b> is False<br>
-# <b>'result':</b> True if the pair exists, False otherwise. Only present if <b>'ok'</b> is True
 def pairExists(source, target, index=-1):
+	"""
+	Checks if a given language pair is available.
+
+    :param source: String with the source language of the pair to be checked.
+    :type source: str
+    :param target: String with the target language of the pair to be checked.
+    :type target: str
+    :param index: Optional integer indicating the position of the address in the list the request should be sent to. Defaults to -1. Used to keep the function from iterating through all the addresses.
+    :type index: int
+    :returns: A dictionary.
+
+    	The dictionary has the following fields:
+
+    	- **'ok'**: True if the call was successful, False otherwise
+
+    	- **'errorMsg':** String with the cause of the error. Only present if **'ok'** is False
+
+    	- **'result':** True if the pair exists, False otherwise. Only present if **'ok'** is True
+    """
 	if(index > -1 and index < len(apyAddress)):
 		apyList = [apyAddress[index]]
 		last = 0
@@ -425,18 +478,28 @@ def pairExists(source, target, index=-1):
 			else:
 				continue
 
-## Translates a given text
-#
-# @param text String to be translated
-# @param source String with the language to translate the text from
-# @param target String with the language to translate the text to
-# @param index Optional integer indicating the position of the address in the list the request should be sent to. <br>
-# Defaults to -1. Used to keep the function from iterating through all the addresses
-# @return A dictionary with the following fields:<br>
-# <b>'ok':</b> True if the call was successful, False otherwise<br>
-# <b>'errorMsg':</b> String with the cause of the error. Only present if <b>'ok'</b> is False<br>
-# <b>'result':</b> A string with the translated text. Only present if <b>'ok'</b> is True
 def translate(text, source, target, index=-1):
+	"""
+	Translates a given text.
+
+    :param text: String to be translated.
+    :type text: str
+    :param source: String with the language to translate the text from.
+    :type source: str
+    :param target: String with the language to translate the text to.
+    :type target: str
+    :param index: Optional integer indicating the position of the address in the list the request should be sent to. Defaults to -1. Used to keep the function from iterating through all the addresses.
+    :type index: int
+    :returns: A dictionary.
+
+    	The dictionary has the following fields:
+
+    	- **'ok'**: True if the call was successful, False otherwise
+
+    	- **'errorMsg':** String with the cause of the error. Only present if **'ok'** is False
+
+    	- **'result':** A string with the translated text. Only present if **'ok'** is True
+    """
 	if(index > -1 and index < len(apyAddress)):
 		apyList = [apyAddress[index]]
 		last = 0

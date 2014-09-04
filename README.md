@@ -13,6 +13,34 @@ This module has two parts:
 
 ###Installing
 
-To install the module run:
+You can opt for a global installation with
 
-* python setup.py install
+* sudo python setup.py install
+
+Alternatively, you can install the module to a chosen directory (prefix installation). To do this run the following
+
+* python setup.py install --prefix=route/to/module
+
+don't forget to use your own custom route to install the module there. After that, a new directory tree containing the Python module will be created. You still need to tell Python to look for the module in this new directory, so you will have to add its route to your PYTHONPATH environment variable:
+
+* export PYTHONPATH=route/to/module/lib/pythonX.Y/site-packages:$PYTHONPATH
+
+don't forget to add the whole route up to the site-packages directory (included). You can also edit your .profile/.bash_profile/.login file to add the above line so that the route is added to the PYTHONPATH automatically when you log in (therefore, you won't have to manually edit it every time).
+
+You can refer to this [documentation](https://docs.python.org/2/install/ "documentation") for other different installing alternatives.
+
+###Documentation
+
+In order to generate the Sphinx documentation you can enter the doc directory
+
+* cd doc
+
+and run the makefile inside
+
+* make html
+
+to generate the html documentation
+
+* make latexpdf
+
+to generate the PDF (assuming you have latex and pdflatex installed)
